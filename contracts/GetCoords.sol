@@ -17,22 +17,6 @@ contract GetCoords {
   constructor (address _GameManager) {
     gameManager = IGameManager(_GameManager);
   }
-  function getUnique(IGameManager.PlaceOnLand[4] memory  arr1, IGameManager.PlaceOnLand[15] memory  arr2, uint256 k, uint256 i) view private {
-    bool flag = false;
-    for (uint256 l = 0; l < arr1.length; l++) {
-      if (arr1[l].x == arr2[k].x && arr1[l].y == arr2[k].y) {
-        flag = true;
-        break;
-      }
-    }
-    if (flag == true) {
-      k++;
-      getUnique(arr1, arr2, k, i);
-    } else {
-      arr1[i].x = arr2[k].x;
-      arr1[i].y = arr2[k].y;
-    }
-  }
   function getCoord(uint256 tokenId) view external returns (Coordinates memory) {
     IGameManager.PlaceOnLand[15] memory rightPlaces = [
       IGameManager.PlaceOnLand(6, 5),
@@ -51,6 +35,10 @@ contract GetCoords {
       IGameManager.PlaceOnLand(8, 2),
       IGameManager.PlaceOnLand(7, 2)
     ];
+    bool [9][9] memory rightPlacesMatrix;
+    for (uint256 i = 0; i<rightPlaces.length; i++) {
+      rightPlacesMatrix[rightPlaces[i].x][rightPlaces[i].y] = true;
+    }
     IGameManager.PlaceOnLand memory base = gameManager.baseStationsPlacement(tokenId);
     IGameManager.PlaceOnLand memory transport = gameManager.transportPlacement(tokenId);
     IGameManager.PlaceOnLand memory robot = gameManager.robotAssemblyPlacement(tokenId);
@@ -61,26 +49,24 @@ contract GetCoords {
       robot,
       power
     ];
-    uint256 k = 0;
     for (uint256 i = 0; i < coordinates.length; i++) {
-      bool flag = false;
-      for (uint256 j = 0; j < rightPlaces.length; j++) {
-        if (coordinates[i].x == rightPlaces[j].x && coordinates[i].y == rightPlaces[j].y) {
-          flag = true;
-          break;
-        } 
+      if (coordinates[i].x == 0 && coordinates[i].y == 0) {
+        continue;
       }
-      if (flag == false) {
-        bool flag1 = false;
-        for (uint256 j = 0; j < coordinates.length; j++) {
-          if (coordinates[i].x == coordinates[j].x && coordinates[i].y == coordinates[j].y) {
-            getUnique(coordinates, rightPlaces, k, i);
-            flag1 = true;
+      if (
+        coordinates[i].x < rightPlacesMatrix.length &&
+        coordinates[i].y < rightPlacesMatrix[0].length &&
+        rightPlacesMatrix[coordinates[i].x][coordinates[i].y] == true
+      ) {
+        rightPlacesMatrix[coordinates[i].x][coordinates[i].y] = false;
+      } else {
+        for (uint256 j = 0; j < rightPlaces.length; j++) {
+          if (rightPlacesMatrix[rightPlaces[j].x][rightPlaces[j].y] == true) {
+            rightPlacesMatrix[rightPlaces[j].x][rightPlaces[j].y] = false;
+            coordinates[i].x = rightPlaces[j].x;
+            coordinates[i].y = rightPlaces[j].y;
+            break;
           }
-        }
-        if (flag1 == false) {
-          coordinates[i].x = rightPlaces[k].x;
-          coordinates[i].y = rightPlaces[k].y;
         }
       }
     }
