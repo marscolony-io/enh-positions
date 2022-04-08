@@ -35,7 +35,7 @@ module.exports = {
       provider: () => {
         return new HDWalletProvider({
           mnemonic: key,
-          providerOrUrl: /*'https://api.fuzz.fi',*/ /*'https://api.harmony.one',*/ 'https://rpc.hermesdefi.io/',
+          providerOrUrl: /* 'https://api.fuzz.fi', */ /*'https://api.harmony.one',*/ 'https://rpc.hermesdefi.io/',
           derivationPath: `m/44'/60'/0'/0/`,
           confirmations: 0,
           timeoutBlocks: 200,

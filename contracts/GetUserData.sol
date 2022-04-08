@@ -17,12 +17,19 @@ contract GetUserData {
     uint8 powerProduction; // 0 or 1, 2, 3 (levels)
   }
 
+  struct Avatars {
+    address owner;
+    string name;
+  }
+
   IUserData public userData;
+  IUserData public MColonists;
   address public MCAddress;
   
-  constructor (address _UserData, address _MCAddress) {
+  constructor (address _UserData, address _MCAddress, address _MColonists) {
     userData = IUserData(_UserData);
     MCAddress = _MCAddress;
+    MColonists = IUserData(_MColonists);
   }
 
   function getLandData(uint256 _from, uint256 _to) view external returns (UserData[] memory) {
@@ -52,15 +59,14 @@ contract GetUserData {
     return result;
   }
 
-  function getAttributes(uint256 _from, uint256 _to) view external returns (IUserData.AttributeData[] memory) {
-    uint256 len = _to-_from+1;
-    uint256[] memory tokenIds = new uint256[](len);
-    uint256 index = 0;
-    for (uint256 i = _from; i <= _to; i++) {
-      tokenIds[index] = i;
-      index++;
+  function getAvatarData(uint256 from, uint256 to) view external returns (Avatars[] memory) {
+    Avatars[] memory result = new Avatars[](to-from+1);
+    for (uint i = from; i <= to; i++) {
+      result[i-from] = Avatars(
+        MColonists.ownerOf(i),
+        MColonists.names(i)
+      );
     }
-    IUserData.AttributeData[] memory attributes = userData.getAttributesMany(tokenIds);
-    return attributes;
+    return result;
   }
 }
