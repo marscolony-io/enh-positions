@@ -2,3 +2,5 @@ secrets.js
 node_modules
 build
 _contracts
+*.csv
+*.txt
