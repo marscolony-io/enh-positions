@@ -32,6 +32,8 @@ contract GetUserData {
     MColonists = IUserData(_MColonists);
   }
 
+  
+
   function getLandData(uint256 _from, uint256 _to) view external returns (UserData[] memory) {
     uint256 len = _to-_from+1;
     uint256 index = 0;

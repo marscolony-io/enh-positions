@@ -7,16 +7,26 @@ module.exports = async (callback) => {
   const addresses = new Set();
   const whales = new Map();
   for (let i = 1; i < 21000; i = i + 1000) { // last i - 20001
-    const data = await getUserData.getAvatarData(i, i + 999); // you can change to getLandData
-    for (const item of data) {
+    const dataLand = await getUserData.getLandData(i, i + 999); // you can change to getLandData
+    const dataAvatar = await getUserData.getAvatarData(i, i + 999); // you can change to getLandData
+    for (const item of dataLand) {
       addresses.add(item.owner);
       whales.set(item.owner, (whales.get(item.owner) ?? 0) + 1);
     }
+    for (const item of dataAvatar) {
+      addresses.add(item.owner);
+      whales.set(item.owner, (whales.get(item.owner) ?? 0) + 1);
+    }
+    process.stdout.write('.')
   }
-  console.log(whales);
+  console.log([...addresses]);
   fs.writeFileSync(
-    './avatar-owners.csv', 
-    'address;owns\n' + Array.from(whales.entries()).map(x => `${x[0]};${x[1]}`).join('\n')
+    './whitelist.txt',
+    Array.from([...addresses]).map(x => `'${x}'`).join(', ')
   );
+  // fs.writeFileSync(
+  //   './avatar-owners.csv', 
+  //   'address;owns\n' + Array.from(whales.entries()).map(x => `${x[0]};${x[1]}`).join('\n')
+  // );
   callback();
 };

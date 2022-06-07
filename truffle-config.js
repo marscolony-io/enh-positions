@@ -22,7 +22,7 @@ const HDWalletProvider = require('@truffle/hdwallet-provider');
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-const { key } = require("./secrets")
+const { key, bscKey } = require("./secrets")
 
 module.exports = {
   networks: {
@@ -30,6 +30,14 @@ module.exports = {
       host: "127.0.0.1",
       port: 9545,
       network_id: "*"
+    },
+    bsc: {
+      provider: () => new HDWalletProvider(bscKey, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      confirmations: 1,
+      timeoutBlocks: 200,
+      skipDryRun: true,
+      // gasPrice: 6 * 10 ** 9,
     },
     harmain: {
       provider: () => {
@@ -52,6 +60,24 @@ module.exports = {
         });
       },
       network_id: 1666700000,
+    },
+    mumbai: {
+      provider: () => {
+        return new HDWalletProvider({
+          mnemonic: key,
+          providerOrUrl: 'https://matic-mumbai.chainstacklabs.com',
+          // providerOrUrl: 'https://polygon-mumbai.g.alchemy.com/v2/' + mumbai_node_key,
+          derivationPath: `m/44'/60'/0'/0/`,
+          confirmations: 0,
+          timeoutBlocks: 200,
+          networkCheckTimeout: 200000,
+        });
+      },
+      // gas: 500000,
+      network_id: 80001,
+      gasPrice: 20 * 1e9,
+      maxGasFees: 60 * 1e9,
+      maxPriorityFees: 70 * 1e9,
     },
   },
   compilers: {
